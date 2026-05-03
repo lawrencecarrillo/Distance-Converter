@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KM ↔ Miles Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e42;
+    --navy-light: #243b55;
+    --accent: #00e5b4;
+    --accent-dim: rgba(0, 229, 180, 0.12);
+    --accent-glow: rgba(0, 229, 180, 0.3);
+    --text-primary: #f0f4f8;
+    --text-muted: #7a90a4;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  body {
+    background: var(--navy);
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .card {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+  }
+
+  .toggle-btn {
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    padding: 0.65rem 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .toggle-btn.active {
+    background: var(--accent);
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+  .input-section {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 4rem 0.9rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s ease;
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  .unit-badge {
+    position: absolute;
+    right: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 3px 8px;
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .arrow {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin: 1rem 0;
+    user-select: none;
+  }
+
+  .result-box {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-glow);
+    border-radius: 12px;
+    padding: 1.2rem 1rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    min-height: 68px;
+  }
+
+  .result-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--accent);
+    transition: opacity 0.15s ease;
+  }
+
+  .result-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .formula {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.03em;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <span class="icon">🗺️</span>
+    <h1>Distance Converter</h1>
+    <p class="subtitle">km ↔ miles</p>
+  </div>
+
+  <div class="toggle-group">
+    <button class="toggle-btn active" id="btn-km" onclick="setMode('km')">km → miles</button>
+    <button class="toggle-btn" id="btn-mi" onclick="setMode('mi')">miles → km</button>
+  </div>
+
+  <div class="input-section">
+    <label id="input-label">Enter kilometers</label>
+    <div class="input-wrapper">
+      <input type="number" id="num-input" placeholder="0" min="0" oninput="convert()" />
+      <span class="unit-badge" id="from-badge">km</span>
+    </div>
+  </div>
+
+  <div class="arrow">↓</div>
+
+  <div class="result-box">
+    <span class="result-number" id="result-number">—</span>
+    <span class="result-unit" id="result-unit">miles</span>
+  </div>
+
+  <p class="formula" id="formula-text">1 km = 0.621371 miles</p>
+</div>
+
+<script>
+  let mode = 'km';
+
+  function setMode(m) {
+    mode = m;
+    const isKm = m === 'km';
+    document.getElementById('btn-km').classList.toggle('active', isKm);
+    document.getElementById('btn-mi').classList.toggle('active', !isKm);
+    document.getElementById('input-label').textContent = isKm ? 'Enter kilometers' : 'Enter miles';
+    document.getElementById('from-badge').textContent = isKm ? 'km' : 'mi';
+    document.getElementById('result-unit').textContent = isKm ? 'miles' : 'km';
+    document.getElementById('formula-text').textContent = isKm
+      ? '1 km = 0.621371 miles'
+      : '1 mile = 1.60934 km';
+    document.getElementById('num-input').value = '';
+    document.getElementById('result-number').textContent = '—';
+  }
+
+  function convert() {
+    const val = parseFloat(document.getElementById('num-input').value);
+    const resultEl = document.getElementById('result-number');
+    if (isNaN(val) || val < 0) {
+      resultEl.textContent = '—';
+      return;
+    }
+    const result = mode === 'km'
+      ? val * 0.621371
+      : val * 1.60934;
+    resultEl.textContent = result % 1 === 0
+      ? result.toLocaleString()
+      : result.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  }
+</script>
+
+</body>
+</html>
